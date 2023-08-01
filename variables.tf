@@ -13,6 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+variable "environment" {
+  description = "Environment tag to help identify the entire deployment"
+  type        = string
+  default     = "dlp"
+}
+
+variable "project_name" {
+  description = "Prefix of Google Project name"
+  type        = string
+  default     = "prj"
+}
+
+variable "org_id" {
+  description = "The numeric organization id"
+  type        = string
+}
+
+variable "folder_id" {
+  description = "The folder to deploy project in"
+  type        = string
+}
+
+variable "billing_account" {
+  description = "The billing account id associated with the project, e.g. XXXXXX-YYYYYY-ZZZZZZ"
+  type        = string
+}
 
 variable "region" {
   description = "Google Cloud region to deploy resources"
@@ -35,4 +61,10 @@ variable "pubsub_entry_point" {
 variable "dlp_rolesList" {
   type    = list(string)
   default = ["roles/dlp.admin", "roles/dlp.serviceAgent"]
+}
+
+variable "runtime" {
+  description = "Cloud Function runtime"
+  type        = string
+  default     = "python310"
 }

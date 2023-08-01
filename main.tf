@@ -48,10 +48,11 @@ resource "google_service_account" "cloudfunction" {
 }
 
 resource "google_project_iam_member" "binding" {
-  project    = module.project.project_id
-  role       = "roles/dlp.serviceAgent"
-  member     = "serviceAccount:${google_service_account.cloudfunction.email}"
+  project = module.project.project_id
+  role    = var.dlp_rolesList[count.index]
+  member  = "serviceAccount:${google_service_account.cloudfunction.email}"
 }
+
 
 resource "google_storage_bucket" "quarantine_bucket" {
   project                     = module.project.project_id
@@ -68,7 +69,6 @@ resource "google_storage_bucket" "sensitive_bucket" {
   force_destroy               = true
   uniform_bucket_level_access = true
 }
-
 
 resource "google_storage_bucket" "non_sensitive_bucket" {
   project                     = module.project.project_id
@@ -88,7 +88,7 @@ resource "google_storage_bucket" "gcf_source_bucket" {
 
 data "archive_file" "gcf_zip_file" {
   type        = "zip"
-  output_path = "${path.module}/files/${var.environment}.zip"
+  output_path = "${path.module}/files/${var.environment}-dlpcode-${random_id.random_suffix.hex}.zip"
 
   source {
     content  = file("${path.module}/files/main.py")
@@ -132,7 +132,6 @@ resource "google_cloudfunctions_function" "storage_function" {
     event_type = "google.storage.object.finalize"
     resource   = google_storage_bucket.quarantine_bucket.name
   }
-  depends_on = [google_project_service.project_services]
 }
 
 resource "google_cloudfunctions_function" "pubsub_function" {
@@ -149,5 +148,4 @@ resource "google_cloudfunctions_function" "pubsub_function" {
     event_type = "google.pubsub.topic.publish"
     resource   = "projects/${module.project.project_id}/topics/${google_pubsub_topic.pubsub_topic.name}"
   }
-  depends_on = [google_project_service.project_services]
 }
