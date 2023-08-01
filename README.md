@@ -5,30 +5,24 @@
 This is an auto-generated module.
 
 ### Detailed
-This module was generated from [terraform-google-module-template](https://github.com/terraform-google-modules/terraform-google-module-template/), which by default generates a module that simply creates a GCS bucket. As the module develops, this README should be updated.
+This module will deploy the infrastructure to automate the classification of data uploaded to Cloud Storage bucket.
 
 The resources/services/activations/deletions that this module will create/trigger are:
 
-- Create a GCS bucket with the provided name
+- Creates a new Google Cloud project
+- Creates a custom Service Account for the Cloud Functions
+- Creates four storage buckets
+- Create a pub/sub topic and subscription
+- Creates two Cloud Functions
 
 ### PreDeploy
 To deploy this blueprint you must have an active billing account and billing permissions.
 
 ## Architecture
 ![alt text for diagram](https://www.link-to-architecture-diagram.com)
-1. Architecture description step no. 1
-2. Architecture description step no. 2
-3. Architecture description step no. N
 
 ## Documentation
-- [Hosting a Static Website](https://cloud.google.com/storage/docs/hosting-static-website)
-
-## Deployment Duration
-Configuration: X mins
-Deployment: Y mins
-
-## Cost
-[Blueprint cost details](https://cloud.google.com/products/calculator?id=02fb0c45-cc29-4567-8cc6-f72ac9024add)
+- [Original DLP Solution](https://codelabs.developers.google.com/codelabs/cloud-storage-dlp-functions#0)
 
 ## Usage
 
@@ -38,9 +32,6 @@ Basic usage of this module is as follows:
 module "dataloss_prevention" {
   source  = "terraform-google-modules/dataloss-prevention/google"
   version = "~> 0.1"
-
-  project_id  = "<PROJECT ID>"
-  bucket_name = "gcs-test-bucket"
 }
 ```
 
@@ -52,14 +43,19 @@ Functional examples are included in the
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| bucket\_name | The name of the bucket to create | `string` | n/a | yes |
-| project\_id | The project ID to deploy to | `string` | n/a | yes |
+| billing\_account | The billing account id associated with the project, e.g. XXXXXX-YYYYYY-ZZZZZZ | `string` | n/a | yes |
+| environment | Environment tag to help identify the entire deployment | `string` | `"dlp"` | no |
+| folder\_id | The folder to deploy project in | `string` | n/a | yes |
+| org\_id | The numeric organization id | `string` | n/a | yes |
+| project\_name | Prefix of Google Project name | `string` | `"prj"` | no |
+| pubsub\_entry\_point | Cloud Function to process pub sub events | `string` | `"resolve_DLP"` | no |
+| region | Google Cloud region to deploy resources | `string` | `"us-central"` | no |
+| runtime | Cloud Function runtime | `string` | `"python310"` | no |
+| storage\_entry\_point | Cloud Function to process storage events | `string` | `"create_DLP_job"` | no |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| bucket\_name | Name of the bucket |
+No output.
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 

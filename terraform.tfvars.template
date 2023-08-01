@@ -1,0 +1,4 @@
+org_id            = "Your Org ID. ie 123456789"
+billing_account   = "Your Billing account. ie 123456-123456-123456"
+environment       = "dlp"
+folder_id         = "Your Folder ID for new project to deploy to. ie 123456"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-module "dlp_project" {
+module "project" {
   source  = "terraform-google-modules/project-factory/google"
   version = "~> 11.0"
 
@@ -47,9 +47,15 @@ resource "google_service_account" "cloudfunction" {
   display_name = "${var.environment}-${random_id.random_suffix.hex}"
 }
 
-resource "google_project_iam_member" "binding" {
+resource "google_project_iam_member" "dlpadmin" {
   project = module.project.project_id
-  role    = var.dlp_rolesList[count.index]
+  role    = "roles/dlp.admin"
+  member  = "serviceAccount:${google_service_account.cloudfunction.email}"
+}
+
+resource "google_project_iam_member" "dlpagent" {
+  project = module.project.project_id
+  role    = "roles/dlp.serviceAgent"
   member  = "serviceAccount:${google_service_account.cloudfunction.email}"
 }
 
@@ -83,7 +89,6 @@ resource "google_storage_bucket" "gcf_source_bucket" {
   name                        = "${var.environment}-dlpfunction-${random_id.random_suffix.hex}"
   uniform_bucket_level_access = true
   location                    = var.region
-  depends_on                  = [google_project_service.project_services]
 }
 
 data "archive_file" "gcf_zip_file" {
@@ -144,7 +149,7 @@ resource "google_cloudfunctions_function" "pubsub_function" {
   ingress_settings      = "ALLOW_INTERNAL_ONLY"
   service_account_email = google_service_account.cloudfunction.email
   entry_point           = var.pubsub_entry_point
-  eevent_trigger {
+  event_trigger {
     event_type = "google.pubsub.topic.publish"
     resource   = "projects/${module.project.project_id}/topics/${google_pubsub_topic.pubsub_topic.name}"
   }

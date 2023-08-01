@@ -58,11 +58,6 @@ variable "pubsub_entry_point" {
   default     = "resolve_DLP"
 }
 
-variable "dlp_rolesList" {
-  type    = list(string)
-  default = ["roles/dlp.admin", "roles/dlp.serviceAgent"]
-}
-
 variable "runtime" {
   description = "Cloud Function runtime"
   type        = string
