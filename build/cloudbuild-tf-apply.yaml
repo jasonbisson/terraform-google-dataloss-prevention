@@ -16,7 +16,7 @@ timeout: 3600s
 substitutions:
   _POLICY_REPO: '/workspace/policy-library' # add path to policies as per https://github.com/GoogleCloudPlatform/terraform-validator/blob/main/docs/policy_library.md
   _DOCKER_TAG_VERSION_TERRAFORM: 'latest'
-  _QUARANTINE_BUCKET: "dlp-quarantine-0d8e42b0" 
+  _QUARANTINE_BUCKET: "Your Bucket" 
   _SAMPLE_DATA_LOCATION: "./envs/development/sample_data" 
 steps:
 - id: 'setup'

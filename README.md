@@ -1,9 +1,5 @@
 # terraform-google-dataloss-prevention
 
-## Description
-### Tagline
-This is an auto-generated module.
-
 ### Detailed
 This module will deploy the infrastructure to automate the classification of data uploaded to Cloud Storage bucket.
 
@@ -16,27 +12,40 @@ The resources/services/activations/deletions that this module will create/trigge
 - Creates two Cloud Functions
 
 ### PreDeploy
-To deploy this blueprint you must have an active billing account and billing permissions.
+To deploy this module you must have an active billing account and billing permissions to deploy the project.
 
 ## Architecture
-![alt text for diagram](https://www.link-to-architecture-diagram.com)
+![Reference Architecture](diagram/DLP.png)
 
 ## Documentation
 - [Original DLP Solution](https://codelabs.developers.google.com/codelabs/cloud-storage-dlp-functions#0)
 
 ## Usage
 
-Basic usage of this module is as follows:
-
-```hcl
-module "dataloss_prevention" {
-  source  = "terraform-google-modules/dataloss-prevention/google"
-  version = "~> 0.1"
-}
+1. Clone repo
+```
+git clone https://github.com/jasonbisson/terraform-google-dataloss-prevention.git
+cd ~/terraform-google-dataloss-prevention/
 ```
 
-Functional examples are included in the
-[examples](./examples/) directory.
+2. Rename and update required variables in terraform.tvfars.template
+```
+mv terraform.tfvars.template terraform.tfvars
+#Update required variables
+```
+3. Execute Terraform commands with existing identity (human or service account) to build Infrastructure
+```
+terraform init
+terraform plan
+terraform apply
+#Copy output of quarantine bucket 
+quarantine_bucket= "dlp-quarantine-<random id>"
+
+4. Upload the files to Quartine bucket
+export quarantine_bucket= "dlp-quarantine-<random id>"
+gcloud storage cp ./sample_data/* gs://${quarantine_bucket}
+
+5. Review Cloud Logging & Buckets to ensure processing completed
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Inputs
@@ -49,13 +58,15 @@ Functional examples are included in the
 | org\_id | The numeric organization id | `string` | n/a | yes |
 | project\_name | Prefix of Google Project name | `string` | `"prj"` | no |
 | pubsub\_entry\_point | Cloud Function to process pub sub events | `string` | `"resolve_DLP"` | no |
-| region | Google Cloud region to deploy resources | `string` | `"us-central"` | no |
+| region | Google Cloud region to deploy resources | `string` | `"us-central1"` | no |
 | runtime | Cloud Function runtime | `string` | `"python310"` | no |
 | storage\_entry\_point | Cloud Function to process storage events | `string` | `"create_DLP_job"` | no |
 
 ## Outputs
 
-No output.
+| Name | Description |
+|------|-------------|
+| quarantine\_bucket | Quarantine bucket |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
@@ -75,7 +86,9 @@ The following dependencies must be available:
 A service account with the following roles must be used to provision
 the resources of this module:
 
-- Storage Admin: `roles/storage.admin`
+- Project Creator 
+- Project Deleter
+- Billing User
 
 The [Project Factory module][project-factory-module] and the
 [IAM module][iam-module] may be used in combination to provision a
@@ -86,7 +99,12 @@ service account with the necessary roles applied.
 A project with the following APIs enabled must be used to host the
 resources of this module:
 
-- Google Cloud Storage JSON API: `storage-api.googleapis.com`
+- Cloud Function: `cloudfunctions.googleapis.com`
+- Data Loss: `dlp.googleapis.com`
+- Cloud Build: `cloudbuild.googleapis.com`
+- Cloud Resource: `cloudresourcemanager.googleapis.com`
+- Artifact Registry: `artifactregistry.googleapis.com`
+- Pub Sub: `pubsub.googleapis.com`
 
 The [Project Factory module][project-factory-module] can be used to
 provision a project with the necessary APIs enabled.
@@ -96,7 +114,6 @@ provision a project with the necessary APIs enabled.
 Refer to the [contribution guidelines](./CONTRIBUTING.md) for
 information on contributing to this module.
 
-[iam-module]: https://registry.terraform.io/modules/terraform-google-modules/iam/google
 [project-factory-module]: https://registry.terraform.io/modules/terraform-google-modules/project-factory/google
 [terraform-provider-gcp]: https://www.terraform.io/docs/providers/google/index.html
 [terraform]: https://www.terraform.io/downloads.html

@@ -13,3 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+output "quarantine_bucket" {
+  description = "Quarantine bucket"
+  value       = google_storage_bucket.quarantine_bucket.name
+}
