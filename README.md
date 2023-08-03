@@ -39,11 +39,11 @@ terraform init
 terraform plan
 terraform apply
 #Copy output of quarantine bucket 
-quarantine_bucket= "dlp-quarantine-<random id>"
+quarantine_bucket = "dlp-quarantine-<random id>"
 ```
 4. Upload the files to Quartine bucket
 ```
-export quarantine_bucket= "dlp-quarantine-<random id>"
+export quarantine_bucket= "dlp-quarantine-<random id>"
 gcloud storage cp ./sample_data/* gs://${quarantine_bucket}
 ```
 5. Review Cloud Logging & Buckets to ensure processing completed
