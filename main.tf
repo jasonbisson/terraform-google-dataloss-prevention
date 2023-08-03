@@ -59,6 +59,11 @@ resource "google_project_iam_member" "dlpagent" {
   member  = "serviceAccount:${google_service_account.cloudfunction.email}"
 }
 
+resource "google_project_iam_member" "logging" {
+  project = module.project.project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.cloudfunction.email}"
+}
 
 resource "google_storage_bucket" "quarantine_bucket" {
   project                     = module.project.project_id
@@ -119,8 +124,9 @@ resource "google_pubsub_topic" "pubsub_topic" {
 }
 
 resource "google_pubsub_subscription" "pubsub_subscription" {
-  name  = "${var.environment}-${random_id.random_suffix.hex}"
-  topic = google_pubsub_topic.pubsub_topic.name
+  project = module.project.project_id
+  name    = "${var.environment}-${random_id.random_suffix.hex}"
+  topic   = google_pubsub_topic.pubsub_topic.name
 }
 
 resource "google_cloudfunctions_function" "storage_function" {
@@ -137,6 +143,13 @@ resource "google_cloudfunctions_function" "storage_function" {
     event_type = "google.storage.object.finalize"
     resource   = google_storage_bucket.quarantine_bucket.name
   }
+  environment_variables = {
+    DLP_PROJECT_ID          = module.project.project_id
+    QUARANTINE_BUCKET       = google_storage_bucket.quarantine_bucket.name
+    SENSITIVE_DATA_BUCKET   = google_storage_bucket.sensitive_bucket.name
+    INSENSITIVE_DATA_BUCKET = google_storage_bucket.non_sensitive_bucket.name
+    PUB_SUB_TOPIC           = google_pubsub_topic.pubsub_topic.name
+  }
 }
 
 resource "google_cloudfunctions_function" "pubsub_function" {
@@ -152,5 +165,12 @@ resource "google_cloudfunctions_function" "pubsub_function" {
   event_trigger {
     event_type = "google.pubsub.topic.publish"
     resource   = "projects/${module.project.project_id}/topics/${google_pubsub_topic.pubsub_topic.name}"
+  }
+  environment_variables = {
+    DLP_PROJECT_ID          = module.project.project_id
+    QUARANTINE_BUCKET       = google_storage_bucket.quarantine_bucket.name
+    SENSITIVE_DATA_BUCKET   = google_storage_bucket.sensitive_bucket.name
+    INSENSITIVE_DATA_BUCKET = google_storage_bucket.non_sensitive_bucket.name
+    PUB_SUB_TOPIC           = google_pubsub_topic.pubsub_topic.name
   }
 }

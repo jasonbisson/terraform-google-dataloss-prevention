@@ -43,7 +43,7 @@ variable "billing_account" {
 variable "region" {
   description = "Google Cloud region to deploy resources"
   type        = string
-  default     = "us-central"
+  default     = "us-central1"
 }
 
 variable "storage_entry_point" {
